@@ -241,7 +241,7 @@ class PanZoom extends React.Component<Props, State> {
 
   onWheel = (e: WheelEvent) => {
     const { disableScrollZoom, disabled, zoomSpeed } = this.props
-    if (disableScrollZoom || disabled) {
+    if (disableScrollZoom || disabled || !e.ctrlKey) {
       return
     }
 
@@ -263,10 +263,6 @@ class PanZoom extends React.Component<Props, State> {
     }
 
     const keys = {
-      '38': { x: 0, y: -1, z: 0 }, // up
-      '40': { x: 0, y: 1, z: 0 }, // down
-      '37': { x: -1, y: 0, z: 0 }, // left
-      '39': { x: 1, y: 0, z: 0 }, // right
       '189': { x: 0, y: 0, z: 1 }, // zoom out
       '109': { x: 0, y: 0, z: 1 }, // zoom out
       '187': { x: 0, y: 0, z: -1 }, // zoom in
@@ -277,7 +273,6 @@ class PanZoom extends React.Component<Props, State> {
     const mappedCoords = keys[e.keyCode]
     if (mappedCoords) {
       const { x, y, z } = mappedCoords
-      e.preventDefault()
       e.stopPropagation()
 
       if ((x || y) && this.container.current) {
@@ -615,6 +610,13 @@ class PanZoom extends React.Component<Props, State> {
     this.setState({ angle: newAngle })
   }
 
+  setZoom = (x: number, y: number, value: number) => {
+    this.setState({
+      x: x,
+      y: y,
+      scale: value
+    })
+  }
   zoomAbs = (x: number, y: number, zoomLevel: number) => {
     this.zoomTo(x, y, zoomLevel / this.state.scale)
   }
@@ -805,7 +807,7 @@ class PanZoom extends React.Component<Props, State> {
         // Until further research onWheel listener is replaced by
         // this.container.addEventListener('mousewheel', this.onWheel, { passive: false })
         // see Chrome motivations https://developers.google.com/web/updates/2019/02/scrolling-intervention
-        //onWheel={this.onWheel}
+        // onWheel={this.onWheel}
         onKeyDown={this.onKeyDown}
         onKeyUp={this.onKeyUp}
         onTouchStart={this.onTouchStart}
